@@ -1,0 +1,41 @@
+name: integration
+
+on:
+  push:
+    branches: [ main, develop, 'feature/*' ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  # Valider la qualité du code avec des tests
+  quality-and-test:
+    name: Code Quality & Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+    
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+    
+    - name: Install Dependencies
+      run: |
+        uv sync --all-extras
+        uv pip install ruff pytest pytest-cov
+    
+    - name: Linting (Ruff)
+      run: |
+        # Vérifie le code avec Ruff et ignore les erreurs E501 et I correspondantes à la longueur des lignes
+        uv run ruff check . --select=E,F,W --ignore=E501,I 
+        # Pour effectuer un fix automatique, utiliser la commande suivante:
+        # uv run ruff fix .    
+        
+    - name: Run All Tests
+      run: |
+        uv run pytest tests/ -v --cov=app --cov=Data
