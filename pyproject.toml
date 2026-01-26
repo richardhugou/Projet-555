@@ -33,21 +33,16 @@ dependencies = [
 norecursedirs = ["tests/data"]
 
 [tool.ruff]
-# 1. Règles globales (Scripts .py et Notebooks .ipynb)
+# On garde ici les réglages généraux (non liés au linting pur)
+line-length = 88 
+
+[tool.ruff.lint]
+# On déplace tout ici comme demandé par le warning
 select = ["E", "F", "W"]
 ignore = ["E501", "I"]
 
-# 2. Paramètres spécifiques aux Notebooks
-[tool.ruff.extend-per-file-ignores]
-"*.ipynb" = [
-    "E402", # Autorise les imports n'importe où (pas seulement au début)
-    "F401", # Optionnel: ignore les imports inutilisés (fréquent en test/exploration)
-    "W291", # Optionnel: si tu ne veux plus être embêté par les espaces en fin de ligne
-    "W293"  # Optionnel: si tu ne veux plus être embêté par les espaces dans les lignes vides
-]
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
+[tool.ruff.lint.extend-per-file-ignores]
+# Ton indulgence pour les notebooks, bien rangée sous la section lint
+"*.ipynb" = ["E402", "W291", "W293"]
 
 # Petit snippet gentillement donné par gemini pour simplifier le linting
