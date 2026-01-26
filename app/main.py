@@ -28,7 +28,7 @@ class EmployeeInput(BaseModel):
 # Chargement du modèle
 # On enverra un message d'erreur si le modèle n'est pas trouvé, on est jamais à l'abri d'un plantage
 try:
-    model = joblib.load("../model/model.joblib")
+    model = joblib.load("../Data/model/model.joblib")
 except FileNotFoundError:
     model = None
     print("Modèle non trouvé")
