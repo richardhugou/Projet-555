@@ -8,7 +8,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  # Valider la qualité du code avec des tests
   quality-and-test:
     name: Code Quality & Tests
     runs-on: ubuntu-latest
@@ -18,27 +17,20 @@ jobs:
     
     - name: Install uv
       uses: astral-sh/setup-uv@v5
-    
-    - name: Set up Python 3.13
-      uses: actions/setup-python@v4
       with:
-        python-version: '3.13'
+        enable-cache: true # Accélère les exécutions suivantes
+
+    - name: Set up Python 3.13
+      run: uv python install 3.13
     
     - name: Install Dependencies
-      run: |
-        uv sync --all-extras
-        uv pip install ruff pytest pytest-cov
+      run: uv sync --all-extras
     
-    - name: Linting (Ruff)
-      run: |
-        # Vérifie le code avec Ruff et ignore les erreurs E501 et I correspondantes à la longueur des lignes
-        uv run ruff check . --select=E,F,W --ignore=E501,I 
-        # Pour effectuer un fix automatique, utiliser la commande suivante:
-        # uv run ruff fix .    
+    - name: Linting with Ruff
+      # On enlève --fix pour que la CI valide ton travail sans le modifier en cachette
+      run: uv run ruff check . --output-format=github
     
     - name: Run Test Suite & Coverage
-      # Optimisation : Exécute les tests uniquement si des modifications sont détectées dans le dossier 'tests'
+      # On ne lance les tests que si le dossier tests contient des fichiers
       if: hashFiles('tests/**') != ''
-      # Utilisation de pytest-cov pour générer un rapport de couverture sur les modules 'app' et 'Data'
-      # -v : Mode verbeux pour faciliter le debug en cas d'échec dans la CI
-      run: uv run pytest tests/ -v --cov=app --cov=Data 
+      run: uv run pytest tests/ -v --cov=app --cov=Data
