@@ -36,7 +36,7 @@ except FileNotFoundError:
 # Route pour la prédiction
 @app.post("/predict") # Le @ signifie que c'est une route
 def predict_churn(data: EmployeeInput): # data est le paramètre qui va contenir les données, employeeInput est le type de données que l'on a défini plus haut
-    
+
     # Vérification que le modèle est bien là
     if model is None:
         raise HTTPException(status_code=500, detail="Le modèle n'est pas chargé.") # Le code 500 signifie qu'il y a eu une erreur, c'est normalisé
@@ -64,14 +64,14 @@ def predict_churn(data: EmployeeInput): # data est le paramètre qui va contenir
     if data.exp_totale < 0:
         raise HTTPException(status_code=400, detail="L'expérience totale doit être positive.")
 
-    
+
     # Feature Engineering
     hp_sup = 1 if data.heures_supp == "Oui" else 0 # 1 si Oui, 0 si Non pour rappel
-    
+
     # Attention aux divisions par zéro
     anciennete = data.anciennete if data.anciennete > 0 else 1 # On évite les divisions par zéro
     ratio_stagnation = data.poste_actuel / anciennete
-    
+
     exp_totale = data.exp_totale if data.exp_totale > 0 else 1 # On évite les divisions par zéro
     revenu_par_exp = data.revenu_mensuel / exp_totale
 
