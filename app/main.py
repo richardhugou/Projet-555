@@ -1,7 +1,7 @@
-from fastapi import FastAPI # Nécessaire pour le projet
-from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, Field
+from typing import Literal # Pour forcer "Oui" ou "Non"
 import joblib
-from fastapi import HTTPException
 import pandas as pd
 
 # Initialisation de l'application
@@ -11,19 +11,29 @@ app = FastAPI(
     version="1.0.0" # Permet de gérer les versions de l'API
 )
 
-# Définition des inputs, on va devoir y revenir pour éviter les erreurs de saisie
-class EmployeeInput(BaseModel):
-    age: int
-    revenu_mensuel: float
-    distance_domicile_travail: float
-    satisfaction_environnement: int
-    heures_supp: str  # "Oui" ou "Non"
-    annees_promo: int
-    satisfaction_equilibre: int
-    pee: int
-    poste_actuel: int
-    anciennete: int
-    exp_totale: float
+class EmployeeInput(BaseModel): # On créé des plages de valeurs pour les inputs pour ne pas avoir d'erreurs de saisie # ge = greater or equal, le = less or equal, et ... ou ellipsis est interprété par pydantic comme un champ requis. Merci Gemini pour ma culture générale
+    # Pour résumer sur la première ligne, on définit un schéma de données avec des contraintes, int signifie que c'est un entier, ... signifie que c'est un champ requis, ge et le signifient respectivement "greater or equal" et "less or equal", description est une description de la variable
+    age: int = Field(..., ge=18, le=70, description="L'âge doit être entre 18 et 70 ans")
+
+    revenu_mensuel: float = Field(..., ge=0, description="Revenu mensuel positif")
+
+    distance_domicile_travail: float = Field(..., ge=0, description="Distance domicile-travail")
+
+    satisfaction_environnement: int = Field(..., ge=1, le=4, description="Note entre 1 et 4")
+
+    heures_supp: Literal["Oui", "Non"] = Field(..., description="Heures supplémentaires")
+
+    annees_promo: int = Field(..., ge=0, description="Années depuis la dernière promotion")
+
+    satisfaction_equilibre: int = Field(..., ge=1, le=4, description="Note entre 1 et 4")
+
+    pee: int = Field(..., ge=0, description="Nombre de participations au PEE")
+
+    poste_actuel: int = Field(..., ge=0, description="Poste actuel")
+
+    anciennete: int = Field(..., ge=0, description="Ancienneté")
+
+    exp_totale: float = Field(..., ge=0, description="Expérience totale")
 
 # Chargement du modèle
 # On enverra un message d'erreur si le modèle n'est pas trouvé, on est jamais à l'abri d'un plantage
@@ -40,30 +50,6 @@ def predict_churn(data: EmployeeInput): # data est le paramètre qui va contenir
     # Vérification que le modèle est bien là
     if model is None:
         raise HTTPException(status_code=500, detail="Le modèle n'est pas chargé.") # Le code 500 signifie qu'il y a eu une erreur, c'est normalisé
-
-    # On accède aux valeurs avec data.age, data.revenu_mensuel, etc.
-    # Vérification des valeurs, on va changer ça après avec la méthode pydantic, c'est juste pour tester
-    if data.age < 18:
-        raise HTTPException(status_code=400, detail="L'âge doit être supérieur à 18 ans.") # Le code 400 correspond à une erreur de requête
-    if data.revenu_mensuel < 0:
-        raise HTTPException(status_code=400, detail="Le revenu mensuel doit être positif.")
-    if data.distance_domicile_travail < 0:
-        raise HTTPException(status_code=400, detail="La distance domicile-travail doit être positive.")
-    if data.satisfaction_environnement < 0 or data.satisfaction_environnement > 5:
-        raise HTTPException(status_code=400, detail="La satisfaction environnement doit être entre 0 et 5.")
-    if data.annees_promo < 0:
-        raise HTTPException(status_code=400, detail="Les années depuis la dernière promotion doivent être positives.")
-    if data.satisfaction_equilibre < 0 or data.satisfaction_equilibre > 5:
-        raise HTTPException(status_code=400, detail="La satisfaction équilibre-pro-perso doit être entre 0 et 5.")
-    if data.pee < 0:
-        raise HTTPException(status_code=400, detail="Le nombre de participations au PEE doit être positif.")
-    if data.poste_actuel < 0:
-        raise HTTPException(status_code=400, detail="Le poste actuel doit être positif.")
-    if data.anciennete < 0:
-        raise HTTPException(status_code=400, detail="L'ancienneté doit être positive.")
-    if data.exp_totale < 0:
-        raise HTTPException(status_code=400, detail="L'expérience totale doit être positive.")
-
 
     # Feature Engineering
     hp_sup = 1 if data.heures_supp == "Oui" else 0 # 1 si Oui, 0 si Non pour rappel
