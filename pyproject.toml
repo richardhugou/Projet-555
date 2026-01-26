@@ -10,8 +10,10 @@ dependencies = [
     "flake8>=7.3.0",
     "gradio>=6.2.0",
     "imbalanced-learn>=0.14.1",
+    "ipykernel>=7.1.0",
     "joblib>=1.5.3",
     "matplotlib>=3.10.8",
+    "nbformat>=5.10.4",
     "pandas>=2.3.3",
     "passlib>=1.7.4",
     "plotly>=6.5.0",
@@ -29,3 +31,18 @@ dependencies = [
 
 [tool.pytest.ini_options]
 norecursedirs = ["tests/data"]
+
+[tool.ruff]
+# On garde ici les réglages généraux (non liés au linting pur)
+line-length = 88 
+
+[tool.ruff.lint]
+# On déplace tout ici comme demandé par le warning
+select = ["E", "F", "W"]
+ignore = ["E501", "I"]
+
+[tool.ruff.lint.extend-per-file-ignores]
+# Ton indulgence pour les notebooks, bien rangée sous la section lint
+"*.ipynb" = ["E402", "W291", "W293"]
+
+# Petit snippet gentillement donné par gemini pour simplifier le linting
