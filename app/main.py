@@ -1,7 +1,6 @@
-from fastapi import FastAPI, HTTPException # Nécessaire pour le projet
+from fastapi import FastAPI # Nécessaire pour le projet
 from pydantic import BaseModel
 import joblib
-import pandas as pd
 
 # Initialisation de l'application
 app = FastAPI(
