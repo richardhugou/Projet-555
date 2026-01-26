@@ -36,8 +36,9 @@ jobs:
         # Pour effectuer un fix automatique, utiliser la commande suivante:
         # uv run ruff fix .    
     
-    - name: Run All Tests
-      # La boucle if permet de ne pas exécuter les tests si aucun fichier de test n'a été modifié
+    - name: Run Test Suite & Coverage
+      # Optimisation : Exécute les tests uniquement si des modifications sont détectées dans le dossier 'tests'
       if: hashFiles('tests/**') != ''
-      # cov est un paramètre de pytest qui permet de mesurer la couverture du code, pytest-cov est un plugin de pytest qui permet de mesurer la couverture du code
-      run: uv run pytest tests/ -v --cov=app --cov=Data
+      # Utilisation de pytest-cov pour générer un rapport de couverture sur les modules 'app' et 'Data'
+      # -v : Mode verbeux pour faciliter le debug en cas d'échec dans la CI
+      run: uv run pytest tests/ -v --cov=app --cov=Data 
