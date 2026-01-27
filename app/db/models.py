@@ -19,7 +19,7 @@ class Historique(Base):
     poste_actuel = Column(Integer)
     anciennete = Column(Integer)
     exp_totale = Column(Integer)
-    
+
     # Output, prédiction
     prediction = Column(Integer)
     probability = Column(Float)
