@@ -57,14 +57,6 @@ scenarios = [
         "payload": {
             "age": 30,
             "revenu_mensuel": 3000,
-            "distance_domicile_travail": 10,
-            "satisfaction_environnement": 3,
-            "heures_supp": "Non",
-            "annees_promo": 2,
-            "satisfaction_equilibre": 3,
-            "pee": 1,
-            "poste_actuel": 5,
-            "anciennete": 5,
             "exp_totale": 8
         },
         "expected_status": 422,
@@ -100,4 +92,3 @@ def test_predict_general(scenario):
     # On ne vérifie que les clés qui sont dans le scénario
     for key in scenario["required_keys"]:
         assert key in data, f"Il manque la clé '{key}' dans la réponse !"
-        
