@@ -13,8 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     # Variable globale pour la BDD
     env:
-      database_url: postgres://postgres:admin@localhost:5432/scoring_db
-
+      DATABASE_URL: postgresql://postgres:admin@localhost:5432/scoring_db
     services:
       postgres:
         image: postgres:15
