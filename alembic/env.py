@@ -1,9 +1,17 @@
+import os
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
+from dotenv import load_dotenv # on a déjà le .env à la racine qui contient les informations postgresql du projet précédent
+
+# On ajoute les variables d'environnement
+load_dotenv()
+
+# On ajoute les informations lié à la base mais comme je ne l'ai pas encore fait, je vais m'y attaquer, on va commiter avant pour ne pas perdre la trace
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
