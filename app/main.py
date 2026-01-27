@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 from typing import Literal # Pour forcer "Oui" ou "Non"
 import joblib
 import pandas as pd
-import os 
+import os
 
 # --- IMPORTS POUR LA BASE DE DONNÉES ---
 from sqlalchemy.orm import Session  # Sert uniquement au "Typage" (pour que l'autocomplétion fonctionne sur l'objet db)
@@ -86,10 +86,34 @@ def predict_churn(data: EmployeeInput, db: Session = Depends(get_db)):  # on raj
     if hasattr(model, "predict_proba"): # Au cas où j'essaye un autre modèle plus tard, ce que je ne ferai sans doute pas
         probability = model.predict_proba(input_df)[0][1] # On regarde le premier résultat de la liste, il y en a qu'un de toute façon, et on récupère la probabilité, qui est la deuxième valeur [1]
 
+
+
+    # On ajoute la prédiction et la probabilité dans la base de données
+    historique = Historique(
+        # Les champs sont les mêmes que dans le modèle
+        age=data.age,
+        revenu_mensuel=data.revenu_mensuel,
+        distance_domicile_travail=data.distance_domicile_travail,
+        satisfaction_environnement=data.satisfaction_environnement,
+        heures_supp=data.heures_supp,
+        annees_promo=data.annees_promo,
+        satisfaction_equilibre=data.satisfaction_equilibre,
+        pee=data.pee,
+        poste_actuel=data.poste_actuel,
+        anciennete=data.anciennete,
+        exp_totale=data.exp_totale,
+        # Les 2 champs restants sont les prédictions et la probabilité en sortie
+        prediction=int(prediction),
+        probability=float(probability)
+    )
+    db.add(historique)
+    db.commit()
+
     # Réponse simple pour commencer
-    # Une API renvoie généralement du JSON (un dictionnaire Python) jamais utilisé avant mais on va le faire
     return {
         "prediction": int(prediction), # 0 ou 1
         "probability": float(probability),
         "message": "Risque de départ élevé" if prediction == 1 else "Employé stable"
     }
+
+
