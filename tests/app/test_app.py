@@ -1,4 +1,3 @@
-import pytest # ça marche mieux avec
 from fastapi.testclient import TestClient
 from app.main import app # On importe l'API depuis main.py
 
@@ -21,13 +20,13 @@ def test_predict_nominal():
         "anciennete": 5,
         "exp_totale": 8
     }
-    
+
     # Le robot envoie la requête POST
     response = client.post("/predict", json=payload)
-    
+
     # ASSERT = "Je parie que..." on veut une réponse 200, c'est un fonction qui permet de vérifier que la réponse est bien 200
     assert response.status_code == 200
-    
+
     # On vérifie qu'on reçoit bien une prédiction et un message
     data = response.json()
     assert "prediction" in data

@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 from typing import Literal # Pour forcer "Oui" ou "Non"
 import joblib
 import pandas as pd
+import os # C'est bien d'y penser avant de faire le test, mais au moins maintenant je sais lire les erreurs dans le terminal
 
 # Initialisation de l'application
 app = FastAPI(
@@ -11,8 +12,7 @@ app = FastAPI(
     version="1.0.0" # Permet de gérer les versions de l'API
 )
 
-class EmployeeInput(BaseModel): # On créé des plages de valeurs pour les inputs pour ne pas avoir d'erreurs de saisie # ge = greater or equal, le = less or equal, et ... ou ellipsis est interprété par pydantic comme un champ requis. Merci Gemini pour ma culture générale
-    # Pour résumer sur la première ligne, on définit un schéma de données avec des contraintes, int signifie que c'est un entier, ... signifie que c'est un champ requis, ge et le signifient respectivement "greater or equal" et "less or equal", description est une description de la variable
+class EmployeeInput(BaseModel): # ge greater than or equal to, le less than or equal to, et ... ou ellipsis est interprété par pydantic comme un champ requis
     age: int = Field(..., ge=18, le=70, description="L'âge doit être entre 18 et 70 ans")
 
     revenu_mensuel: float = Field(..., ge=0, description="Revenu mensuel positif")
@@ -37,15 +37,18 @@ class EmployeeInput(BaseModel): # On créé des plages de valeurs pour les input
 
 # Chargement du modèle
 # On enverra un message d'erreur si le modèle n'est pas trouvé, on est jamais à l'abri d'un plantage
+# On retravaille cette partie, car ça fait planter les tests, on va utiliser un chemin absolu
+# On utilise le chemin absolu pour que le modèle soit trouvé, peu importe où le script est exécuté
+model_path = os.path.join(os.path.dirname(__file__), "../Data/model/model.joblib")
 try:
-    model = joblib.load("../Data/model/model.joblib")
+    model = joblib.load(model_path)
 except FileNotFoundError:
     model = None
     print("Modèle non trouvé")
 
 # Route pour la prédiction
 @app.post("/predict") # Le @ signifie que c'est une route
-def predict_churn(data: EmployeeInput): # data est le paramètre qui va contenir les données, employeeInput est le type de données que l'on a défini plus haut
+def predict_churn(data: EmployeeInput): # data est le paramètre qui va contenir les données, employeeInput est le type de données que l'on a défini plus haut, churn parce que ça fait plus marketing RH, c'est bien pour le côté corpo
 
     # Vérification que le modèle est bien là
     if model is None:
