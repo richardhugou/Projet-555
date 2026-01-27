@@ -1,6 +1,9 @@
 # Projet 5 : Scoring de Crédit et Prédiction de Churn
 
-![CI](https://github.com/richardhugou/Projet-555/actions/workflows/_01_integration.yaml/badge.svg)
+| Branche | Statut CI |
+| :--- | :--- |
+| **Main** | ![CI - Main](https://github.com/richardhugou/Projet-555/actions/workflows/_01_integration.yaml/badge.svg?branch=main) |
+| **Develop** | ![CI - Develop](https://github.com/richardhugou/Projet-555/actions/workflows/_01_integration.yaml/badge.svg?branch=develop) |
 
 Ce dépôt contient le pipeline complet pour un modèle de machine learning : de l'entraînement à la mise en production via une API. On se concentre ici sur le "churn" RH, c'est-à-dire prédire le risque de départ d'un employé.
 
