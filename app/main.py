@@ -116,4 +116,8 @@ def predict_churn(data: EmployeeInput, db: Session = Depends(get_db)):  # on raj
         "message": "Risque de départ élevé" if prediction == 1 else "Employé stable"
     }
 
+@app.get("/history")
+def get_history(db: Session = Depends(get_db), limit: int = 10): # Je voulais consulter les prédicitions faite dans la base de données
+    return db.query(Historique).order_by(Historique.date_prediction.desc()).limit(limit).all()
+
 
