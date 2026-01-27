@@ -47,9 +47,8 @@ FastAPI génère automatiquement la doc interactive, c'est super pratique :
 *   **ReDoc** : `http://127.0.0.1:8000/redoc`
 
 * Pour rappel :
-Swagger UI est un outil qui permet de tester les endpoints de l'API en envoyant des requêtes.
-ReDoc est un outil qui permet de visualiser la documentation de l'API.
-Redoc est plus léger et plus rapide que Swagger UI.
+    - **Swagger UI** (/docs) : C'est un outil de test. Il est interactif et permet d'envoyer des requêtes à l'API directement depuis le navigateur. Idéal pour les développeurs en phase de construction et de debug.
+    - **ReDoc** (/redoc) : C'est une documentation de référence. Elle est statique, visuelle et optimisée pour la lecture. Idéale pour présenter proprement l'API à des clients ou des utilisateurs externes.
 
 ---
 
