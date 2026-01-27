@@ -11,6 +11,24 @@ jobs:
   quality-and-test:
     name: Code Quality & Tests
     runs-on: ubuntu-latest
+    # Variable globale pour la BDD
+    env:
+      DATABASE_URL: postgresql://postgres:admin@localhost:5432/scoring_db
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: admin
+          POSTGRES_DB: scoring_db
+        ports:
+          - 5432:5432
+          # Demande à GitHub d'attendre que la BDD soit prête, sinon le workflow plante
+        options: >-
+          --health-cmd pg_isready 
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     
     steps:
     - uses: actions/checkout@v4
@@ -29,6 +47,10 @@ jobs:
     - name: Linting with Ruff
       # On enlève --fix pour que la CI valide ton travail sans le modifier en cachette
       run: uv run ruff check . --output-format=github
+    
+    # On demande à Alembic de construire la base grâce aux fichiers de migration, pour éviter les erreurs de migration
+    - name: Apply database migrations
+      run: uv run alembic upgrade head
     
     - name: Run Test Suite & Coverage
       # On ne lance les tests que si le dossier tests contient des fichiers
