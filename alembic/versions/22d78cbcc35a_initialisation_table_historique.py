@@ -1,7 +1,7 @@
 """Initialisation table historique
 
 Revision ID: 22d78cbcc35a
-Revises: 
+Revises:
 Create Date: 2026-01-27 22:34:31.082406
 
 """
