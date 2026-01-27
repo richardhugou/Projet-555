@@ -15,6 +15,9 @@ L'idée est de sortir un score basé sur les données socio-pros (salaire, dista
 *   **uv** : Pour la gestion des dépendances. C'est beaucoup plus rapide que pip et ça garantit qu'on a tous le même environnement.
 *   **CI/CD** : Un workflow GitHub Actions qui lance Ruff pour le linting et Pytest pour les tests à chaque push. Le linting permet de garder un code propre et les tests permettent de s'assurer que le code fonctionne. On a aussi mis en place un système de déploiement sur Hugging Face.
 *   **GitFlow** : On garde un historique propre en passant par des branches feature/ avant de merge.
+*   **SQLAlchemy** : Pour la gestion de la base de données.
+*   **Alembic** : Pour la gestion des migrations de la base de données. En itérant sur ce projet précédemment, j'ai constaté que l'ajout d'une colonne nécessitait la destruction de la base de données. Alembic permet d'éviter cela.
+
 
 ---
 
@@ -32,6 +35,13 @@ cd "Projet 555"
 
 # Installation propre des dépendances
 uv sync --all-extras
+```
+
+### Base de données
+Le projet utilise Alembic pour gérer le schéma :
+```powershell
+# Appliquer les migrations
+uv run alembic upgrade head
 ```
 
 ---
@@ -58,6 +68,7 @@ FastAPI génère automatiquement la doc interactive, c'est super pratique :
 ## Tests et Qualité
 
 ### Lancer la suite de tests
+On utilise des **tests paramétrés** pour couvrir plusieurs scénarios (nominal, données invalides, types erronés) en une seule fonction :
 ```powershell
 uv run pytest tests/ -v --cov=app
 ```
@@ -74,11 +85,12 @@ uvx ruff check .
 ```text
 ├── .github/workflows/   # Pipeline CI/CD
 ├── Data/
-│   └── model/           # Modèle entraîné (joblib)
-│   └── database/ # a venir
+│   ├── model/           # Modèle entraîné (joblib)
+│   └── database/        # Dossier pour la base SQLite
 ├── app/
-│   └── main.py          # L'API ou tout se passe
-├── tests/               # La partie tests unitaires
+│   └── main.py          # L'API où tout se passe
+├── migrations/          # Scripts de migration Alembic
+├── tests/               # La partie tests unitaires paramétrés
 ├── pyproject.toml       # Config et dépendances
 └── README.md
 ```
