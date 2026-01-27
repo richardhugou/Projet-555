@@ -1,5 +1,6 @@
 from fastapi.testclient import TestClient
 from app.main import app # On importe l'API depuis main.py
+import pytest # ça marche mieux avec
 
 # On créé un premier test, on doit pour ça faire un "client" qui va envoyer des requêtes à ton API
 client = TestClient(app)
@@ -50,19 +51,23 @@ scenarios = [
 
 
 # --- Fonction de test générale ---
+# Il faut ajouter un décorateur pour que pytest reconnaisse la fonction
+@pytest.mark.parametrize("scenario", scenarios) # On dit à pytest de prendre tous les scénarios et de les envoyer à la fonction test_predict_general
 def test_predict_general(scenario):
-    # On parcourt tous les scénarios
-    for scenario in scenarios:
-        # On envoie la requête POST
-        response = client.post("/predict", json=scenario["payload"])
+    # Print statement pour voir le scénario en cours
+    print(f"\n--- Test: {scenario['name']} ---")    
+    print(f"Payload: {scenario['payload']}")
+    print(f"Expected Status: {scenario['expected_status']}")
+    # On envoie la requête POST
+    response = client.post("/predict", json=scenario["payload"])
 
-        # ASSERT = "Je parie que..." on veut une réponse 200, c'est un fonction qui permet de vérifier que la réponse est bien 200
-        assert response.status_code == scenario["expected_status"]
+    # ASSERT = "Je parie que..." on veut une réponse 200, c'est un fonction qui permet de vérifier que la réponse est bien 200
+    assert response.status_code == scenario["expected_status"]
 
-        # On vérifie qu'on reçoit bien une prédiction et un message
-        data = response.json()
-        assert "prediction" in data
-        assert "probability" in data
-        assert "message" in data
-        # On vérifie que la probabilité est bien entre 0 et 1
-        assert 0 <= data["probability"] <= 1
+    # On vérifie qu'on reçoit bien une prédiction et un message
+    data = response.json()
+    assert "prediction" in data
+    assert "probability" in data
+    assert "message" in data
+    # On vérifie que la probabilité est bien entre 0 et 1
+    assert 0 <= data["probability"] <= 1
