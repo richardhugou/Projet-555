@@ -43,9 +43,6 @@ MANIFEST
 # Erreur de linting sur poc_app.ipynb
 poc_app.ipynb
 
-# Trop lourd
-*.joblib
-
 # IDE
 .vscode/
 .idea/
