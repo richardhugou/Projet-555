@@ -1,13 +1,14 @@
+import pytest # ça marche mieux avec
 from fastapi.testclient import TestClient
-from main import app # On importe l'API depuis main.py
+from app.main import app # On importe l'API depuis main.py
 
 # On créé un premier test, on doit pour ça faire un "client" qui va envoyer des requêtes à ton API
 client = TestClient(app)
 
-# --- Premier cas : Tout va bien (Happy Path) ---
+# --- Fonction de test générale ---
 def test_predict_nominal():
     # On définit un employé "normal" (valide), on va envoyer que des données valides (cf schéma dans main.py)
-    payload = { # comme les américains
+    payload = {
         "age": 30,
         "revenu_mensuel": 3000,
         "distance_domicile_travail": 10,
