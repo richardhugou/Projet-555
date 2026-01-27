@@ -3,7 +3,13 @@ from pydantic import BaseModel, Field
 from typing import Literal # Pour forcer "Oui" ou "Non"
 import joblib
 import pandas as pd
-import os # C'est bien d'y penser avant de faire le test, mais au moins maintenant je sais lire les erreurs dans le terminal
+import os 
+
+# --- IMPORTS POUR LA BASE DE DONNÉES ---
+from sqlalchemy.orm import Session  # Sert uniquement au "Typage" (pour que l'autocomplétion fonctionne sur l'objet db)
+from fastapi import Depends         # Interupteur on/off : Permet d'injecter la BDD et de la fermer automatiquement après la requête
+from app.db.database import get_db  # La fonction "Robinet" : C'est elle qui crée la session de connexion
+from app.db.models import Historique # Le "Moule" : La classe qui transforme nos données Python en ligne SQL
 
 # Initialisation de l'application
 app = FastAPI(
@@ -36,9 +42,6 @@ class EmployeeInput(BaseModel): # ge greater than or equal to, le less than or e
     exp_totale: float = Field(..., ge=0, description="Expérience totale")
 
 # Chargement du modèle
-# On enverra un message d'erreur si le modèle n'est pas trouvé, on est jamais à l'abri d'un plantage
-# On retravaille cette partie, car ça fait planter les tests, on va utiliser un chemin absolu
-# On utilise le chemin absolu pour que le modèle soit trouvé, peu importe où le script est exécuté
 model_path = os.path.join(os.path.dirname(__file__), "../Data/model/model.joblib")
 try:
     model = joblib.load(model_path)
@@ -48,8 +51,7 @@ except FileNotFoundError:
 
 # Route pour la prédiction
 @app.post("/predict") # Le @ signifie que c'est une route
-def predict_churn(data: EmployeeInput): # data est le paramètre qui va contenir les données, employeeInput est le type de données que l'on a défini plus haut, churn parce que ça fait plus marketing RH, c'est bien pour le côté corpo
-
+def predict_churn(data: EmployeeInput, db: Session = Depends(get_db)):  # on rajoute un paramètre pour se connecter à la base de données
     # Vérification que le modèle est bien là
     if model is None:
         raise HTTPException(status_code=500, detail="Le modèle n'est pas chargé.") # Le code 500 signifie qu'il y a eu une erreur, c'est normalisé
