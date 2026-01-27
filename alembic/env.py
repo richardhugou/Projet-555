@@ -13,7 +13,8 @@ load_dotenv()
 
 # On ajoute les informations lié à la base
 sys.path.append(os.getcwd()) # getcwd() retourne le dossier actuel
-# On ajoute "# noqa: E402" pour dire au linter d'ignorer la règle "Import not at top of file"
+# On ajoute un code pour dire au linter d'ignorer la règle "Import not at top of file"
+from app.db.database import Base  # noqa: E402
 from app.db import models         # noqa: E402
 
 # On ajoute la metadata de la base
