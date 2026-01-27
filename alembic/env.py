@@ -6,29 +6,34 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
-from dotenv import load_dotenv # on a déjà le .env à la racine qui contient les informations postgresql du projet précédent
+from dotenv import load_dotenv 
 
-# On ajoute les variables d'environnement
+# 1. On charge le .env
 load_dotenv()
 
-# On ajoute les informations lié à la base
-sys.path.append(os.getcwd()) # getcwd() retourne le dossier actuel
-# On ajoute un code pour dire au linter d'ignorer la règle "Import not at top of file"
+# 2. On configure le chemin Python (Avant les imports du projet !)
+sys.path.append(os.getcwd())
+
+# 3. On importe nos fichiers (avec l'exception pour le linter)
 from app.db.database import Base  # noqa: E402
 from app.db import models         # noqa: E402
 
-# On ajoute la metadata de la base
-target_metadata = models.Base.metadata
+# 4. On définit les métadonnées
+target_metadata = Base.metadata
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
+# 5. Configuration Alembic
 config = context.config
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
+# 6. On écrase l'URL par défaut avec celle sécurisée du .env
+database_url = os.getenv("DATABASE_URL")
+if database_url:
+    config.set_main_option("sqlalchemy.url", database_url)
+
+# 7. On charge le fichier de configuration
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
+# 8. Fonction pour les migrations offline
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
