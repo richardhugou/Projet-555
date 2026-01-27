@@ -29,7 +29,7 @@ scenarios = [
         "payload": base_payload,
         "expected_status": 200,
         # La liste des clés qui DOIVENT être présentes
-        "required_keys": ["prediction", "probability", "message"] 
+        "required_keys": ["prediction", "probability", "message"]
     },
     # Le test avec des données invalides
     {
@@ -49,7 +49,7 @@ scenarios = [
         },
         "expected_status": 422,
         # La liste des clés qui DOIVENT être présentes
-        "required_keys": ["detail"] 
+        "required_keys": ["detail"]
     },
     # Scénario 3 : Données manquantes
     {
@@ -61,7 +61,7 @@ scenarios = [
         },
         "expected_status": 422,
         # La liste des clés qui DOIVENT être présentes
-        "required_keys": ["detail"] 
+        "required_keys": ["detail"]
     },
     # Scénario 4 : Mauvais format
     {
@@ -78,7 +78,7 @@ scenarios = [
 @pytest.mark.parametrize("scenario", scenarios) # On dit à pytest de prendre tous les scénarios et de les envoyer à la fonction test_predict_general
 def test_predict_general(scenario):
     # Print statement pour voir le scénario en cours
-    print(f"\n--- Test: {scenario['name']} ---")    
+    print(f"\n--- Test: {scenario['name']} ---")
     print(f"Payload: {scenario['payload']}")
     print(f"Expected Status: {scenario['expected_status']}")
     # On envoie la requête POST
