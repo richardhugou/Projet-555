@@ -16,7 +16,7 @@ sys.path.append(os.getcwd())
 
 # 3. On importe nos fichiers (avec l'exception pour le linter)
 from app.db.database import Base  # noqa: E402
-
+from app.db import models         # noqa: F401, E402
 
 # 4. On définit les métadonnées
 target_metadata = Base.metadata
