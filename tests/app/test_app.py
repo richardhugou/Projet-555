@@ -1,6 +1,8 @@
 from fastapi.testclient import TestClient
 from app.main import app # On importe l'API depuis main.py
 import pytest # ça marche mieux avec
+import os
+
 
 # On créé un premier test, on doit pour ça faire un "client" qui va envoyer des requêtes à ton API
 client = TestClient(app)
@@ -76,11 +78,22 @@ scenarios = [
 # --- Fonction de test générale ---
 # Il faut ajouter un décorateur pour que pytest reconnaisse la fonction
 @pytest.mark.parametrize("scenario", scenarios) # On dit à pytest de prendre tous les scénarios et de les envoyer à la fonction test_predict_general
-def test_predict_general(scenario):
+def test_predict_general(client, scenario):
     # Print statement pour voir le scénario en cours
     print(f"\n--- Test: {scenario['name']} ---")
     print(f"Payload: {scenario['payload']}")
     print(f"Expected Status: {scenario['expected_status']}")
+
+    # Récupération des identifiants
+    username = os.getenv("API_USERNAME", "admin")
+    password = os.getenv("API_PASSWORD", "secret")
+
+    # Authentification
+    response =client.post(
+        "/predict",
+        auth=HTTPBasic(username=username, password=password),
+        json=scenario["payload"]
+    )
     # On envoie la requête POST
     response = client.post("/predict", json=scenario["payload"])
 
