@@ -1,11 +1,5 @@
-from fastapi.testclient import TestClient
-from app.main import app # On importe l'API depuis main.py
-import pytest # ça marche mieux avec
+import pytest
 import os
-
-
-# On créé un premier test, on doit pour ça faire un "client" qui va envoyer des requêtes à ton API
-client = TestClient(app)
 
 # Payload à la base pour faciliter le multi test
 base_payload = {
@@ -91,13 +85,11 @@ def test_predict_general(client, scenario):
     # Authentification
     response =client.post(
         "/predict",
-        auth=HTTPBasic(username=username, password=password),
+        auth=(username, password), # On utilise le tuple (username, password) pour l'authentification httpbasic était un outil serveur pas adapté
         json=scenario["payload"]
     )
-    # On envoie la requête POST
-    response = client.post("/predict", json=scenario["payload"])
 
-    # ASSERT = "Je parie que..." on veut une réponse 200, c'est un fonction qui permet de vérifier que la réponse est bien 200
+    # Adapte l'expected status en fonction du scénario
     assert response.status_code == scenario["expected_status"]
 
     # On vérifie qu'on reçoit bien une prédiction et un message
