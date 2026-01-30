@@ -4,14 +4,13 @@ from fastapi.testclient import TestClient
 from app.db.database import Base, get_db, engine, SessionLocal
 from app.main import app
 # On importe les modèles pour être sûr qu'ils sont enregistrés dans Base
-from app.db import models 
 
 # La Fixture qui gère la BDD
 @pytest.fixture(scope="function")
 def db_session():
     # Crée les tables sur la vraie base
     Base.metadata.create_all(bind=engine)
-    
+
     session = SessionLocal()
     try:
         yield session
@@ -28,12 +27,12 @@ def client(db_session):
             yield db_session
         finally:
             pass
-    
+
     app.dependency_overrides[get_db] = override_get_db
-    
+
     with TestClient(app) as c:
         yield c
-    
+
     app.dependency_overrides.clear()
 
 # Payload à la base pour faciliter le multi test
