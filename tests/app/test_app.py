@@ -3,7 +3,10 @@ import os
 from fastapi.testclient import TestClient
 from app.db.database import Base, get_db, engine, SessionLocal
 from app.main import app
+from app.core.config import settings
+from app.core.security import get_password_hash
 # On importe les modèles pour être sûr qu'ils sont enregistrés dans Base
+from app.db import models
 
 # La Fixture qui gère la BDD
 @pytest.fixture(scope="function")
@@ -12,6 +15,15 @@ def db_session():
     Base.metadata.create_all(bind=engine)
 
     session = SessionLocal()
+
+    # --- CRÉATION DE L'UTILISATEUR DE TEST ---
+    # On crée l'utilisateur que le test va utiliser pour s'authentifier
+    hashed_pwd = get_password_hash(settings.API_PASSWORD)
+    user = models.User(username=settings.API_USERNAME, hashed_password=hashed_pwd)
+    session.add(user)
+    session.commit()
+    # -----------------------------------------
+
     try:
         yield session
     finally:
