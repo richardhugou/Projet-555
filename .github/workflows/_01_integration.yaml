@@ -23,7 +23,6 @@ jobs:
           POSTGRES_DB: scoring_db
         ports:
           - 5432:5432
-          # Demande à GitHub d'attendre que la BDD soit prête, sinon le workflow plante
         options: >-
           --health-cmd pg_isready 
           --health-interval 10s
@@ -56,3 +55,6 @@ jobs:
       # On ne lance les tests que si le dossier tests contient des fichiers
       if: hashFiles('tests/**') != ''
       run: uv run pytest tests/ -v --cov=app --cov=Data
+      env:  # à ajouter pour les tests github actions
+          API_USERNAME: ${{ secrets.API_USERNAME }}
+          API_PASSWORD: ${{ secrets.API_PASSWORD }}
