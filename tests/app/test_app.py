@@ -1,9 +1,51 @@
+import pytest
+import os
 from fastapi.testclient import TestClient
-from app.main import app # On importe l'API depuis main.py
-import pytest # ça marche mieux avec
+from app.db.database import Base, get_db, engine, SessionLocal
+from app.main import app
+from app.core.config import settings
+from app.core.security import get_password_hash
+# On importe les modèles pour être sûr qu'ils sont enregistrés dans Base
+from app.db import models
 
-# On créé un premier test, on doit pour ça faire un "client" qui va envoyer des requêtes à ton API
-client = TestClient(app)
+# La Fixture qui gère la BDD
+@pytest.fixture(scope="function")
+def db_session():
+    # Crée les tables sur la vraie base
+    Base.metadata.create_all(bind=engine)
+
+    session = SessionLocal()
+
+    # --- CRÉATION DE L'UTILISATEUR DE TEST ---
+    # On crée l'utilisateur que le test va utiliser pour s'authentifier
+    hashed_pwd = get_password_hash(settings.API_PASSWORD)
+    user = models.User(username=settings.API_USERNAME, hashed_password=hashed_pwd)
+    session.add(user)
+    session.commit()
+    # -----------------------------------------
+
+    try:
+        yield session
+    finally:
+        session.close()
+        # Supprime les tables après le test pour nettoyer
+        Base.metadata.drop_all(bind=engine)
+
+# La Fixture CLIENT
+@pytest.fixture(scope="function")
+def client(db_session):
+    def override_get_db():
+        try:
+            yield db_session
+        finally:
+            pass
+
+    app.dependency_overrides[get_db] = override_get_db
+
+    with TestClient(app) as c:
+        yield c
+
+    app.dependency_overrides.clear()
 
 # Payload à la base pour faciliter le multi test
 base_payload = {
@@ -76,15 +118,24 @@ scenarios = [
 # --- Fonction de test générale ---
 # Il faut ajouter un décorateur pour que pytest reconnaisse la fonction
 @pytest.mark.parametrize("scenario", scenarios) # On dit à pytest de prendre tous les scénarios et de les envoyer à la fonction test_predict_general
-def test_predict_general(scenario):
+def test_predict_general(client, scenario):
     # Print statement pour voir le scénario en cours
     print(f"\n--- Test: {scenario['name']} ---")
     print(f"Payload: {scenario['payload']}")
     print(f"Expected Status: {scenario['expected_status']}")
-    # On envoie la requête POST
-    response = client.post("/predict", json=scenario["payload"])
 
-    # ASSERT = "Je parie que..." on veut une réponse 200, c'est un fonction qui permet de vérifier que la réponse est bien 200
+    # Récupération des identifiants
+    username = os.getenv("API_USERNAME", "admin")
+    password = os.getenv("API_PASSWORD", "secret")
+
+    # Authentification
+    response =client.post(
+        "/predict",
+        auth=(username, password), # On utilise le tuple (username, password) pour l'authentification httpbasic était un outil serveur pas adapté
+        json=scenario["payload"]
+    )
+
+    # Adapte l'expected status en fonction du scénario
     assert response.status_code == scenario["expected_status"]
 
     # On vérifie qu'on reçoit bien une prédiction et un message
