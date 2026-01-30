@@ -1,4 +1,3 @@
-import secrets # Pour comparer les mots de passe sans faille de sécurité
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel, Field
@@ -10,7 +9,8 @@ import os
 # --- IMPORTS POUR LA BASE DE DONNÉES ---
 from sqlalchemy.orm import Session  # Sert uniquement au "Typage" (pour que l'autocomplétion fonctionne sur l'objet db)
 from app.db.database import get_db  # La fonction "Robinet" : C'est elle qui crée la session de connexion
-from app.db.models import Historique # Le "Moule" : La classe qui transforme nos données Python en ligne SQL
+from app.db.models import Historique, User # Le "Moule" : Historique et User
+from app.core.security import verify_password
 
 # Initialisation de l'application
 app = FastAPI(
@@ -46,23 +46,20 @@ class EmployeeInput(BaseModel): # ge greater than or equal to, le less than or e
 security = HTTPBasic()
 
 # fonction de sécurité
-def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
+def get_current_username(
+    credentials: HTTPBasicCredentials = Depends(security),
+    db: Session = Depends(get_db)  # On injecte la dépendance DB
+):
+    # On cherche l'utilisateur dans la base de données
+    user = db.query(User).filter(User.username == credentials.username).first()
 
-    # On récupère le mot de passe et le nom d'utilisateur depuis env
-    correct_username = os.getenv("API_USERNAME")
-    correct_password = os.getenv("API_PASSWORD")
-
-    # On utilise secrets.compare_digest pour éviter les attaques temporelles (timing attacks)
-    is_correct_username = secrets.compare_digest(credentials.username, correct_username)
-    is_correct_password = secrets.compare_digest(credentials.password, correct_password)
-
-    # On compare les mots de passe
-    if not (is_correct_username and is_correct_password):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Identifiant ou mot de passe incorrect",
-                headers={"WWW-Authenticate": "Basic"},
-            )
+    # Si l'utilisateur n'existe pas OU si le mot de passe ne matche pas le hash
+    if not user or not verify_password(credentials.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Identifiant ou mot de passe incorrect",
+            headers={"WWW-Authenticate": "Basic"},
+        )
     return credentials.username
 
 # Chargement du modèle
