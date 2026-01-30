@@ -13,13 +13,13 @@ jobs:
     runs-on: ubuntu-latest
     # Variable globale pour la BDD
     env:
-      DATABASE_URL: postgresql://postgres:admin@localhost:5432/scoring_db
+      DATABASE_URL: postgresql://postgres:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/scoring_db # modifié pour ne rien laisser en clair dans le yml
     services:
       postgres:
         image: postgres:15
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: admin
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }} # modifié pour ne rien laisser en clair dans le yml
           POSTGRES_DB: scoring_db
         ports:
           - 5432:5432
