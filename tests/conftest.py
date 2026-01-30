@@ -6,7 +6,6 @@ from sqlalchemy.pool import StaticPool # maintenir la connection, pour éviter l
 from app.db.database import Base, get_db
 from app.main import app
 # On importe les modèles pour être sûr qu'ils sont enregistrés dans Base
-from app.db import models 
 
 # Configuration de la BDD de test qui fonctionnera dans la mémoire et sera détruite à la fin des tests
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
@@ -23,7 +22,7 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 def db_session():
     # Crée les tables sur la connexion unique (StaticPool)
     Base.metadata.create_all(bind=engine)
-    
+
     session = TestingSessionLocal()
     try:
         yield session
@@ -40,10 +39,10 @@ def client(db_session):
             yield db_session
         finally:
             pass
-    
+
     app.dependency_overrides[get_db] = override_get_db
-    
+
     with TestClient(app) as c:
         yield c
-    
+
     app.dependency_overrides.clear()
