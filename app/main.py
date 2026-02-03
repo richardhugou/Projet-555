@@ -145,4 +145,108 @@ def predict_churn( # le post défini juste au dessus défini l'URL et la méthod
 def get_history(db: Session = Depends(get_db), limit: int = 10): # Je voulais consulter les prédicitions faite dans la base de données
     return db.query(Historique).order_by(Historique.date_prediction.desc()).limit(limit).all()
 
+# Page d'accueil avec choix de la documentation
+from fastapi.responses import HTMLResponse
+
+@app.get("/", include_in_schema=False)
+def root():
+    html_content = """
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>API Churn Prediction - Accueil</title>
+        <style>
+            :root {
+                --primary: #6366f1;
+                --secondary: #ec4899;
+                --bg: #0f172a;
+                --card-bg: #1e293b;
+                --text: #f8fafc;
+                --text-dim: #94a3b8;
+            }
+            body {
+                font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                background-color: var(--bg);
+                color: var(--text);
+                margin: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+            }
+            .container {
+                text-align: center;
+                background: var(--card-bg);
+                padding: 3rem;
+                border-radius: 1rem;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                max-width: 500px;
+                width: 90%;
+            }
+            h1 {
+                margin-bottom: 0.5rem;
+                background: linear-gradient(to right, var(--primary), var(--secondary));
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                font-size: 2.5rem;
+            }
+            p {
+                color: var(--text-dim);
+                margin-bottom: 2rem;
+                line-height: 1.6;
+            }
+            .buttons {
+                display: flex;
+                gap: 1rem;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            a {
+                text-decoration: none;
+                padding: 0.75rem 1.5rem;
+                border-radius: 0.5rem;
+                font-weight: 600;
+                transition: transform 0.2s, opacity 0.2s;
+            }
+            a:hover {
+                transform: translateY(-2px);
+                opacity: 0.9;
+            }
+            .btn-swagger {
+                background-color: var(--primary);
+                color: white;
+            }
+            .btn-redoc {
+                background-color: transparent;
+                border: 2px solid var(--secondary);
+                color: var(--secondary);
+            }
+            .footer {
+                margin-top: 2rem;
+                font-size: 0.875rem;
+                color: var(--text-dim);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>API Churn Prediction</h1>
+            <p>Bienvenue sur l'API de scoring de crédit et de prédiction de départ employé. Le modèle ML est prêt à servir.</p>
+            
+            <div class="buttons">
+                <a href="/docs" class="btn-swagger">📚 Swagger UI (Interactif)</a>
+                <a href="/redoc" class="btn-redoc">📖 ReDoc (Lecture)</a>
+            </div>
+
+            <div class="footer">
+                Projet 5 - OpenClassrooms
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    return HTMLResponse(content=html_content, status_code=200)
+
 
