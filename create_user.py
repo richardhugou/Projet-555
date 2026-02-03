@@ -1,9 +1,12 @@
-from app.db.database import SessionLocal
+from app.db.database import SessionLocal, engine, Base
 from app.db.models import User
 from app.core.security import get_password_hash
-from app.core.config import settings  # <--- On importe ta config (le .env)
+from app.core.config import settings
 
 def create_admin_user():
+    # EQUIVALENT ALEMBIC : On s'assure que les tables existent avant d'ajouter l'user
+    Base.metadata.create_all(bind=engine)
+
     db = SessionLocal()
 
     # 1. On récupère les valeurs depuis le .env / Secrets

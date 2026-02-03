@@ -32,7 +32,7 @@ Ce dépôt contient le pipeline complet **MLOps** pour un modèle de machine lea
 ### Stack
 *   **Langage** : Python 3.13+
 *   **API** : FastAPI, Pydantic
-*   **Base de Données** : PostgreSQL 15, SQLAlchemy (ORM), Alembic (Migrations) # Que je vais finir par supprimer car c'est plus une difficulté qu'autre chose
+*   **Base de Données** : PostgreSQL 15, SQLAlchemy (ORM)
 *   **Sécurité** : Passlib (Bcrypt), Python-Jose (si JWT ajouté), Pydantic-Settings
 *   **Tests** : Pytest, Pytest-Cov, TestClient
 *   **Qualité** : Ruff (Linter/Formatter), GitFlow
@@ -40,7 +40,6 @@ Ce dépôt contient le pipeline complet **MLOps** pour un modèle de machine lea
 ### Structure du Projet
 ```text
 ├── .github/workflows/   # Pipeline CI/CD automatisé
-├── alembic/             # Gestionnaires de migration BDD
 ├── Data/
 │   └── model/           # Modèle ML entraîné (.joblib)
 ├── app/
@@ -83,10 +82,7 @@ API_PASSWORD=monSuperPasswordSecurise
 ```
 
 ### 5. Initialisation de la Base de Données
-On utilise Alembic pour créer les tables (Users, Historique) :
-```powershell
-uv run alembic upgrade head
-```
+Les tables (Users, Historique) sont **créées automatiquement** au lancement de l'application ou lors de la création de l'utilisateur admin. Plus besoin de migrations manuelles !
 
 ### 6. Création de l'Administrateur
 Lancez le script dédié pour créer votre premier utilisateur hashé en base : # Les infos sont créé à partir du .env

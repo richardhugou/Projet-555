@@ -47,9 +47,6 @@ jobs:
       # On enlève --fix pour que la CI valide ton travail sans le modifier en cachette
       run: uv run ruff check . --output-format=github
     
-    # On demande à Alembic de construire la base grâce aux fichiers de migration, pour éviter les erreurs de migration
-    - name: Apply database migrations
-      run: uv run alembic upgrade head
     
     - name: Run Test Suite & Coverage
       # On ne lance les tests que si le dossier tests contient des fichiers
