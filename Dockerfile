@@ -18,5 +18,5 @@ RUN uv sync --frozen --no-dev
 COPY . .
 
 # 7. La commande de démarrage
-# On lance d'abord la création de l'utilisateur (au cas où la BDD est vide), puis le serveur
-CMD ["sh", "-c", "uv run python create_user.py && uv run uvicorn app.main:app --host 0.0.0.0 --port 7860"]
+# Séquence : 1. Migration BDD (Création tables) -> 2. Création Admin -> 3. Lancement Serveur
+CMD ["sh", "-c", "uv run alembic upgrade head && uv run python create_user.py && uv run uvicorn app.main:app --host 0.0.0.0 --port 7860"]
