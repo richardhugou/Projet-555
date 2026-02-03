@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi.responses import HTMLResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel, Field
 from typing import Literal # Pour forcer "Oui" ou "Non"
@@ -146,7 +147,6 @@ def get_history(db: Session = Depends(get_db), limit: int = 10): # Je voulais co
     return db.query(Historique).order_by(Historique.date_prediction.desc()).limit(limit).all()
 
 # Page d'accueil avec choix de la documentation
-from fastapi.responses import HTMLResponse
 
 @app.get("/", include_in_schema=False)
 def root():
