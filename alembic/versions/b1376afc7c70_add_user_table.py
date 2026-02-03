@@ -12,17 +12,6 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-"""Add user table
-
-Revision ID: b1376afc7c70
-Revises: 22d78cbcc35a
-Create Date: 2026-01-30 12:44:43.478614
-
-"""
-
-
-
-# revision identifiers, used by Alembic.
 revision: str = 'b1376afc7c70'
 down_revision: Union[str, Sequence[str], None] = '22d78cbcc35a'
 branch_labels: Union[str, Sequence[str], None] = None

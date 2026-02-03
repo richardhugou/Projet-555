@@ -5,105 +5,105 @@
 | **Main** | ![CI - Main](https://github.com/richardhugou/Projet-555/actions/workflows/_01_integration.yaml/badge.svg?branch=main) |
 | **Develop** | ![CI - Develop](https://github.com/richardhugou/Projet-555/actions/workflows/_01_integration.yaml/badge.svg?branch=develop) |
 
-Ce dépôt contient le pipeline complet pour un modèle de machine learning : de l'entraînement à la mise en production via une API. On se concentre ici sur le "churn" RH, c'est-à-dire prédire le risque de départ d'un employé.
+Ce dépôt contient le pipeline complet **MLOps** pour un modèle de machine learning : de l'entraînement à la mise en production via une API sécurisée. Le modèle prédit le risque de départ d'un employé ("churn") en fonction de données socio-professionnelles.
 
-## Présentation
-L'idée est de sortir un score basé sur les données socio-pros (salaire, distance, satisfaction, etc.) pour empêche... Pour améliorer la satisfaction des collaborateurs, et créer un environnement de travail épanouissant.
-
-### Choix techniques
-*   **FastAPI** : Pour la rapidité et parce que Pydantic gère tout seul la validation des entrées (on évite les erreurs de saisie). On fera quand même des tests pour s'en assurer.
-*   **uv** : Pour la gestion des dépendances. C'est beaucoup plus rapide que pip et ça garantit qu'on a tous le même environnement.
-*   **CI/CD** : Un workflow GitHub Actions qui lance Ruff pour le linting et Pytest pour les tests à chaque push. Le linting permet de garder un code propre et les tests permettent de s'assurer que le code fonctionne. On a aussi mis en place un système de déploiement sur Hugging Face.
-*   **GitFlow** : On garde un historique propre en passant par des branches feature/ avant de merge.
-*   **SQLAlchemy** : Pour la gestion de la base de données.
-*   **Alembic** : Pour la gestion des migrations de la base de données. En itérant sur ce projet précédemment, j'ai constaté que l'ajout d'une colonne nécessitait la destruction de la base de données. Alembic permet d'éviter cela.
-
+## Fonctionnalités Clés
+*   **API REST** : Développée avec **FastAPI**, rapide, typée et auto-documentée.
+*   **Sécurité** : Authentification via **Bcrypt** (hachage) et stockage en base de données PostgreSQL.
+*   **Persistance** : Historisation des prédictions et des probabilités via **SQLAlchemy**.
+*   **DevOps** :
+    *   Gestion des dépendances moderne avec **uv**.
+    *   Pipeline CI/CD complet avec **GitHub Actions** (Linting, Tests, Migrations).
+    *   Conteneurisation via Docker (à venir).
 
 ---
 
-## Installation
+## Architecture Technique
 
-### Prérequis
-*   Python 3.13+
-*   L'outil `uv` installé sur la machine.
+### Stack
+*   **Langage** : Python 3.13+
+*   **API** : FastAPI, Pydantic
+*   **Base de Données** : PostgreSQL 15, SQLAlchemy (ORM), Alembic (Migrations) # Que je vais finir par supprimer car c'est plus une difficulté qu'autre chose
+*   **Sécurité** : Passlib (Bcrypt), Python-Jose (si JWT ajouté), Pydantic-Settings
+*   **Tests** : Pytest, Pytest-Cov, TestClient
+*   **Qualité** : Ruff (Linter/Formatter), GitFlow
 
-### Setup
+### Structure du Projet
+```text
+├── .github/workflows/   # Pipeline CI/CD automatisé
+├── alembic/             # Gestionnaires de migration BDD
+├── Data/
+│   └── model/           # Modèle ML entraîné (.joblib)
+├── app/
+│   ├── core/            # Configuration et Sécurité (security.py, config.py)
+│   ├── db/              # Modèles SQLAlchemy (models.py) et Connexion (database.py)
+│   └── main.py          # Point d'entrée de l'API
+├── tests/               # Tests unitaires et d'intégration
+├── create_user.py       # Script d'initialisation admin
+└── pyproject.toml       # Gestionnaire de dépendances
+```
+
+---
+
+## Installation et Démarrage
+
+### 1. Prérequis
+*   Un serveur **PostgreSQL** qui tourne en local ou via Docker # uniquement lors du déploiement pour le github action.
+*   L'outil **[uv](https://github.com/astral-sh/uv)** installé.
+
+### 2. Duplication du dépôt
 ```powershell
-# On récupère le dossier
 git clone https://github.com/richardhugou/Projet-555.git
 cd "Projet 555"
+```
 
-# Installation propre des dépendances
+### 3. Installation des dépendances
+```powershell
 uv sync --all-extras
 ```
 
-### Base de données
-Le projet utilise Alembic pour gérer le schéma :
+### 4. Configuration (.env)
+Créez un fichier `.env` à la racine :
+```
+# Connexion Base de données (PostgreSQL)
+DATABASE_URL=postgresql://user:password@localhost:5432/scoring_db
+
+# Identifiants API (pour l'initialisation admin)
+API_USERNAME=admin
+API_PASSWORD=monSuperPasswordSecurise
+```
+
+### 5. Initialisation de la Base de Données
+On utilise Alembic pour créer les tables (Users, Historique) :
 ```powershell
-# Appliquer les migrations
 uv run alembic upgrade head
 ```
 
+### 6. Création de l'Administrateur
+Lancez le script dédié pour créer votre premier utilisateur hashé en base : # Les infos sont créé à partir du .env
+```powershell
+uv run python create_user.py
+```
+*(Vous verrez le message : `Utilisateur 'admin' créé avec succès !`)*
+
 ---
 
-## Utilisation
+## 🖥️ Utilisation
 
-### Lancer l'API en local
+### Lancer l'API
 ```powershell
 uv run uvicorn app.main:app --reload
 ```
-L'API tourne par défaut sur : `http://127.0.0.1:8000`
+L'API est accessible sur `http://127.0.0.1:8000`.
 
-### Tester les endpoints
-FastAPI génère automatiquement la doc interactive, c'est super pratique :
-*   **Swagger UI** : `http://127.0.0.1:8000/docs`
-*   **ReDoc** : `http://127.0.0.1:8000/redoc`
+### Documentation Interactive
+FastAPI génère automatiquement la documentation :
+*   **Swagger UI** : [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+    *   *Cliquez sur le cadenas 🔒 et entrez vos identifiants admin pour utiliser `/predict`.*
+*   **ReDoc** : [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 
-* Pour rappel :
-    - **Swagger UI** (/docs) : C'est un outil de test. Il est interactif et permet d'envoyer des requêtes à l'API directement depuis le navigateur. Idéal pour les développeurs en phase de construction et de debug.
-    - **ReDoc** (/redoc) : C'est une documentation de référence. Elle est statique, visuelle et optimisée pour la lecture. Idéale pour présenter proprement l'API à des clients ou des utilisateurs externes.
-
----
-
-## Tests et Qualité
-
-### Lancer la suite de tests
-On utilise des **tests paramétrés** pour couvrir plusieurs scénarios (nominal, données invalides, types erronés) en une seule fonction :
-```powershell
-uv run pytest tests/ -v --cov=app
-```
-
-### Vérifier le style (Linting)
-On utilise Ruff pour garder un code propre :
-```powershell
-uvx ruff check .
-```
-
----
-
-## Structure du Projet
-```text
-├── .github/workflows/   # Pipeline CI/CD
-├── Data/
-│   ├── model/           # Modèle entraîné (joblib)
-│   └── database/        # Dossier pour la base SQLite
-├── app/
-│   └── main.py          # L'API où tout se passe
-├── migrations/          # Scripts de migration Alembic
-├── tests/               # La partie tests unitaires paramétrés
-├── pyproject.toml       # Config et dépendances
-└── README.md
-```
-
-### Pourquoi ces fichiers `__init__.py` partout ?
-On les a mis dans `app/` et `tests/` pour que Python comprenne que ce sont des packages. C'est ce qui nous permet de faire des `from app.main import app` proprement dans les tests. Sans ça, les dossiers ne se "voient" pas entre eux.
-
----
-
-## API : POST /predict
-C'est le point d'entrée pour la prédiction. 
-
-**Exemple de JSON à envoyer :**
+### Exemple de Requête (/predict)
+**POST** `/predict` (Authentifié Basic Auth)
 ```json
 {
   "age": 35,
@@ -121,4 +121,35 @@ C'est le point d'entrée pour la prédiction.
 ```
 
 ---
-*Projet 5 3éme itération.*
+
+## Tests et Qualité
+
+### Lancer les Tests
+La suite de tests est configurée pour :
+1.  Créer une table temporaire pour chaque test.
+2.  Créer un utilisateur de test à la volée.
+3.  Vérifier les scénarios nominaux et d'erreur.
+
+```powershell
+uv run pytest tests/ -v --cov=app
+```
+*(Résultat attendu : 100% de réussite)*
+
+### Linting
+```powershell
+uvx ruff check .
+```
+
+---
+
+## 📦 CI/CD Pipeline
+Le fichier `_01_integration.yaml` gère l'intégration continue :
+1.  **Checkout** du code.
+2.  Setup de **Python** et **uv**.
+3.  Démarrage d'un **Service PostgreSQL** temporaire.
+4.  Application des **Migrations** en base.
+5.  Exécution des **Tests**.
+6.  Analyse de **Couverture**.
+
+---
+*Projet réalisé dans le cadre de la certification MLOps.*
