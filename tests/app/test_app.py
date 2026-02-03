@@ -1,9 +1,7 @@
 import pytest
-import os
 from fastapi.testclient import TestClient
 from app.db.database import Base, get_db, engine, SessionLocal
 from app.main import app
-from app.core.config import settings
 from app.core.security import get_password_hash
 # On importe les modèles pour être sûr qu'ils sont enregistrés dans Base
 from app.db import models
@@ -21,9 +19,13 @@ def db_session():
     session = SessionLocal()
 
     # --- CRÉATION DE L'UTILISATEUR DE TEST ---
-    # On crée l'utilisateur que le test va utiliser pour s'authentifier
-    hashed_pwd = get_password_hash(settings.API_PASSWORD)
-    user = models.User(username=settings.API_USERNAME, hashed_password=hashed_pwd)
+    # On utilise des données FIXES pour les tests, indépendantes du .env
+    # C'est une meilleure pratique ("Isolation")
+    test_username = "test_admin"
+    test_password = "pomme23"
+
+    hashed_pwd = get_password_hash(test_password)
+    user = models.User(username=test_username, hashed_password=hashed_pwd)
     session.add(user)
     session.commit()
     # -----------------------------------------
@@ -128,14 +130,10 @@ def test_predict_general(client, scenario):
     print(f"Payload: {scenario['payload']}")
     print(f"Expected Status: {scenario['expected_status']}")
 
-    # Récupération des identifiants
-    username = os.getenv("API_USERNAME", "admin")
-    password = os.getenv("API_PASSWORD", "secret")
-
-    # Authentification
-    response =client.post(
+    # Authentification avec les identifiants de test définis plus haut
+    response = client.post(
         "/predict",
-        auth=(username, password), # On utilise le tuple (username, password) pour l'authentification httpbasic était un outil serveur pas adapté
+        auth=("test_admin", "pomme23"),
         json=scenario["payload"]
     )
 
@@ -147,3 +145,14 @@ def test_predict_general(client, scenario):
     # On ne vérifie que les clés qui sont dans le scénario
     for key in scenario["required_keys"]:
         assert key in data, f"Il manque la clé '{key}' dans la réponse !"
+
+
+def test_authentication_failed(client):
+    """Vérifie que l'API rejette un mauvais mot de passe"""
+    response = client.post(
+        "/predict",
+        auth=("admin", "MAUVAIS_MOT_DE_PASSE"),
+        json=base_payload
+    )
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Identifiant ou mot de passe incorrect"

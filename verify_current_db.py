@@ -11,29 +11,29 @@ def check_db_health():
         # 1. Test de connexion brute
         with engine.connect() as connection:
             connection.execute(text("SELECT 1"))
-            print("✅ Connexion Engine : OK")
+            print("Connexion Engine : OK")
     except Exception as e:
-        print(f"❌ Connexion Engine : ÉCHEC ({e})")
+        print(f"Connexion Engine : ÉCHEC ({e})")
         return
 
     db = SessionLocal()
     try:
         # 2. Vérification des utilisateurs
         users = db.query(User).all()
-        print(f"\n📊 Utilisateurs ({len(users)}) :")
+        print(f"\nUtilisateurs ({len(users)}) :")
         for u in users:
             print(f"   - ID: {u.id} | User: '{u.username}'")
 
         if not users:
-            print("   ⚠️ AUCUN UTILISATEUR TROUVÉ ! L'authentification ne marchera pas.")
+            print("AUCUN UTILISATEUR TROUVÉ ! L'authentification ne marchera pas.")
 
         # 3. Vérification de l'historique
         history_count = db.query(Historique).count()
-        print(f"\n📊 Historique Prédictions : {history_count} entrées")
+        print(f"\nHistorique Prédictions : {history_count} entrées")
 
     except Exception as e:
-        print(f"❌ Erreur lors de la lecture des tables : {e}")
-        print("   -> Les tables n'existent peut-être pas ou sont corrompues.")
+        print(f"Erreur lors de la lecture des tables : {e}")
+        print("Les tables n'existent peut-être pas ou sont corrompues.")
     finally:
         db.close()
     print("\n----------------------------------")
