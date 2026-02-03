@@ -234,7 +234,6 @@ def root():
         <div class="container">
             <h1>API Churn Prediction</h1>
             <p>Bienvenue sur l'API de scoring de crédit et de prédiction de départ employé. Le modèle ML est prêt à servir.</p>
-            
             <div class="buttons">
                 <a href="/docs" class="btn-swagger">📚 Swagger UI (Interactif)</a>
                 <a href="/redoc" class="btn-redoc">📖 ReDoc (Lecture)</a>
