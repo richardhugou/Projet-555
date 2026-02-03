@@ -14,8 +14,8 @@ from app.core.security import verify_password
 
 # Initialisation de l'application
 app = FastAPI(
-    title="API de scoring de crédit",
-    description="API pour la prédiction de scoring de crédit",
+    title="API de prédiction de churn",
+    description="API pour la prédiction de churn",
     version="1.0.0" # Permet de gérer les versions de l'API
 )
 
@@ -71,11 +71,11 @@ except FileNotFoundError:
     print("Modèle non trouvé")
 
 # Route pour la prédiction
-@app.post("/predict") # Le @ signifie que c'est une route
-def predict_churn(
-    data: EmployeeInput,
-    db: Session = Depends(get_db),
-    username: str = Depends(get_current_username)
+@app.post("/predict") # Le @ signifie que c'est une route, post est la méthode HTTP utilisée, ici l'envoi de données
+def predict_churn( # le post défini juste au dessus défini l'URL et la méthode HTTP, ici /predict et POST
+    data: EmployeeInput, # On définit les données attendues avec pydantic
+    db: Session = Depends(get_db), # On injecte la dépendance DB
+    username: str = Depends(get_current_username) # On injecte la dépendance de sécurité
     ):  # on rajoute un paramètre pour se connecter à la base de données
     # Vérification que le modèle est bien là
     if model is None:

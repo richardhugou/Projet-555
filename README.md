@@ -23,7 +23,7 @@ Ce dépôt contient le pipeline complet **MLOps** pour un modèle de machine lea
 ### Stack
 *   **Langage** : Python 3.13+
 *   **API** : FastAPI, Pydantic
-*   **Base de Données** : PostgreSQL 15, SQLAlchemy (ORM), Alembic (Migrations)
+*   **Base de Données** : PostgreSQL 15, SQLAlchemy (ORM), Alembic (Migrations) # Que je vais finir par supprimer car c'est plus une difficulté qu'autre chose
 *   **Sécurité** : Passlib (Bcrypt), Python-Jose (si JWT ajouté), Pydantic-Settings
 *   **Tests** : Pytest, Pytest-Cov, TestClient
 *   **Qualité** : Ruff (Linter/Formatter), GitFlow
@@ -48,7 +48,7 @@ Ce dépôt contient le pipeline complet **MLOps** pour un modèle de machine lea
 ## Installation et Démarrage
 
 ### 1. Prérequis
-*   Un serveur **PostgreSQL** qui tourne en local ou via Docker.
+*   Un serveur **PostgreSQL** qui tourne en local ou via Docker # uniquement lors du déploiement pour le github action.
 *   L'outil **[uv](https://github.com/astral-sh/uv)** installé.
 
 ### 2. Duplication du dépôt
@@ -64,7 +64,7 @@ uv sync --all-extras
 
 ### 4. Configuration (.env)
 Créez un fichier `.env` à la racine :
-```ini
+```
 # Connexion Base de données (PostgreSQL)
 DATABASE_URL=postgresql://user:password@localhost:5432/scoring_db
 
@@ -80,7 +80,7 @@ uv run alembic upgrade head
 ```
 
 ### 6. Création de l'Administrateur
-Lancez le script dédié pour créer votre premier utilisateur hashé en base :
+Lancez le script dédié pour créer votre premier utilisateur hashé en base : # Les infos sont créé à partir du .env
 ```powershell
 uv run python create_user.py
 ```
