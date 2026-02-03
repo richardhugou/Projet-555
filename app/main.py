@@ -69,7 +69,6 @@ def get_current_username(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Identifiant ou mot de passe incorrect",
-            headers={"WWW-Authenticate": "Basic"},
         )
     return credentials.username
 
