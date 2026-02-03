@@ -8,16 +8,26 @@ import pandas as pd
 import os
 
 # --- IMPORTS POUR LA BASE DE DONNÉES ---
-from sqlalchemy.orm import Session  # Sert uniquement au "Typage" (pour que l'autocomplétion fonctionne sur l'objet db)
-from app.db.database import get_db  # La fonction "Robinet" : C'est elle qui crée la session de connexion
-from app.db.models import Historique, User # Le "Moule" : Historique et User
+from sqlalchemy.orm import Session
+from app.db.database import get_db, engine, Base  # engine et Base pour create_all
+from app.db.models import Historique, User
 from app.core.security import verify_password
+from contextlib import asynccontextmanager
+
+# Gestionnaire de cycle de vie (Lifespan)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Au démarrage : Crée les tables si elles n'existent pas
+    # C'est l'équivalent de "alembic upgrade head", mais automatique !
+    Base.metadata.create_all(bind=engine)
+    yield
 
 # Initialisation de l'application
 app = FastAPI(
     title="API de prédiction de churn",
     description="API pour la prédiction de churn",
-    version="1.0.0" # Permet de gérer les versions de l'API
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 class EmployeeInput(BaseModel): # ge greater than or equal to, le less than or equal to, et ... ou ellipsis est interprété par pydantic comme un champ requis
@@ -59,7 +69,6 @@ def get_current_username(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Identifiant ou mot de passe incorrect",
-            headers={"WWW-Authenticate": "Basic"},
         )
     return credentials.username
 
