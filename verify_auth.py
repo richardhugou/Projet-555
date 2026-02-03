@@ -5,9 +5,9 @@ from app.core.config import settings
 import sys
 
 def verify_login_simulation():
-    print(f"--- TEST AUTHENTIFICATION ---")
+    print("--- TEST AUTHENTIFICATION ---")
     print(f"DB URL utilisée : {SQLALCHEMY_DATABASE_URL}")
-    
+
     # 1. Lecture des identifiants théoriques (.env)
     env_username = settings.API_USERNAME
     env_password = settings.API_PASSWORD
@@ -22,19 +22,19 @@ def verify_login_simulation():
     if not user:
         print(f"❌ ERREUR : L'utilisateur '{env_username}' n'est PAS trouvé dans la base !")
         sys.exit(1)
-    
+
     print(f"✅ Utilisateur trouvé en base (ID: {user.id})")
     print(f"   Hash en base : {user.hashed_password[:20]}...")
 
     # 3. Test du mot de passe
-    print(f"Test du match...")
+    print("Test du match...")
     if verify_password(env_password, user.hashed_password):
-        print(f"🚀 SUCCÈS : Le mot de passe du .env correspond bien au hash en base !")
+        print("🚀 SUCCÈS : Le mot de passe du .env correspond bien au hash en base !")
         print(f"   -> Tu peux utiliser '{env_password}' dans Swagger.")
     else:
-        print(f"❌ ÉCHEC : Le mot de passe du .env NE CORRESPOND PAS au hash en base.")
-        print(f"   -> La mise à jour du mot de passe a échoué ou n'a pas été commuée.")
-        print(f"   -> Solution : Relance 'uv run python create_user.py' avec le bon .env")
+        print("❌ ÉCHEC : Le mot de passe du .env NE CORRESPOND PAS au hash en base.")
+        print("   -> La mise à jour du mot de passe a échoué ou n'a pas été commuée.")
+        print("   -> Solution : Relance 'uv run python create_user.py' avec le bon .env")
 
 if __name__ == "__main__":
     verify_login_simulation()

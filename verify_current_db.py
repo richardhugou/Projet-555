@@ -4,13 +4,13 @@ from app.core.config import settings
 from sqlalchemy import text
 
 def check_db_health():
-    print(f"--- DIAGNOSTIC BASE DE DONNÉES ---")
+    print("--- DIAGNOSTIC BASE DE DONNÉES ---")
     print(f"URL configurée : {settings.DATABASE_URL}")
-    
+
     try:
         # 1. Test de connexion brute
         with engine.connect() as connection:
-            result = connection.execute(text("SELECT 1"))
+            connection.execute(text("SELECT 1"))
             print("✅ Connexion Engine : OK")
     except Exception as e:
         print(f"❌ Connexion Engine : ÉCHEC ({e})")
@@ -23,7 +23,7 @@ def check_db_health():
         print(f"\n📊 Utilisateurs ({len(users)}) :")
         for u in users:
             print(f"   - ID: {u.id} | User: '{u.username}'")
-        
+
         if not users:
             print("   ⚠️ AUCUN UTILISATEUR TROUVÉ ! L'authentification ne marchera pas.")
 
