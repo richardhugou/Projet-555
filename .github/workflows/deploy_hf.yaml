@@ -1,0 +1,30 @@
+name: Deploy to Hugging Face Spaces
+
+on:
+  push:
+    branches:
+      - main  # Se déclenche uniquement quand on merge sur main
+  workflow_dispatch: # Permet de le lancer manuellement
+
+jobs:
+  sync-to-hub:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Important pour l'historique Git
+          lfs: true      # Si tu as de gros fichiers (modèles)
+
+      - name: Push to Hub
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_USERNAME: ${{ secrets.HF_USERNAME }}
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          
+          # On ajoute le remote Hugging Face
+          git remote add space https://$HF_USERNAME:$HF_TOKEN@huggingface.co/spaces/$HF_USERNAME/P555
+          
+          # On pousse de force (force push) pour écraser le contenu du Space avec notre version propre
+          git push --force space main
