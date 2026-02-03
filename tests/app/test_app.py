@@ -11,6 +11,10 @@ from app.db import models
 # La Fixture qui gère la BDD
 @pytest.fixture(scope="function")
 def db_session():
+    # NETTOYAGE PRÉVENTIF : On supprime tout pour partir d'une feuille blanche
+    # (Évite les erreurs si une exécution précédente a crashé sans nettoyer)
+    Base.metadata.drop_all(bind=engine)
+
     # Crée les tables sur la vraie base
     Base.metadata.create_all(bind=engine)
 
