@@ -38,6 +38,7 @@ MANIFEST
 # Gradio
 .gradio/
 
+GUIDE_DEPLOIEMENT_HF.md
 
 
 # Erreur de linting sur poc_app.ipynb
