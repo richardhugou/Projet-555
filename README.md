@@ -1,3 +1,12 @@
+---
+title: Projet 5 API
+emoji: 🚀
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+---
+
 # Projet 5 : Scoring de Crédit et Prédiction de Churn
 
 | Branche | Statut CI |
